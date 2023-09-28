@@ -1,33 +1,103 @@
 {
-    "scenario_name": "", 
-    "scenario_title": "", 
-    "scenario_description": "", 
-    "config": "D:/git/fed-2/fedstellar/app/config", 
-    "logs": "D:/git/fed-2/fedstellar/app/logs", 
-    "models": "D:/git/fed-2/fedstellar/app/models", 
-    "n_nodes": 5, 
-    "matrix": [], 
-    "federation": "DFL", 
-    "topology": "fully", 
-    "simulation": true, 
-    "env": null, 
-    "webserver": false, 
-    "webport": "5000",
-    "statsport": "5100", 
-    "docker": true, 
-    "python": "D:/git/fed-2/fedstellar-venv/Scripts/python", 
-    "attack": "Label Flipping", 
-    "targeted": true, 
-    "noise_type": 0, 
-    "poisoned_node_persent": 40, 
-    "poisoned_sample_persent": 80, 
-    "poisoned_ratio": 0, 
-    "rounds": 3, 
-    "epochs": 3, 
-    "dataset": "MNIST", 
-    "model": "MLP", 
-    "accelerator": "cpu", 
-    "aggregation": "FedAvg", 
-    "network_subnet": "192.168.50.1/24", 
+    "scenario_name": "MNIST_1_MLP_CFL_Krum_star_SamplePoisoning_0_N30-S10_R20_salt_20230912_202803",
+    "remote_tracking": true,
+    "logging": true,
+    "wandb_project": "fedstellar",
+    "scenario_title": "DFL_FedAvg_fully_Model Poisoning_2020",
+    "scenario_description": "",
+    "config": "d:\\git\\FED-SYNC\\fedstellar\\app\\config",
+    "logs": "d:\\git\\FED-SYNC\\fedstellar\\app\\logs",
+    "models": "d:\\git\\FED-SYNC\\fedstellar\\app\\models",
+    "n_nodes": 3,
+    "matrix": [],
+    "federation": "CFL",
+    "topology": "star",
+    "simulation": true,
+    "env": null,
+    "webserver": false,
+    "is_iid": true,
+    "python": "D:\\git\\FED-SYNC\\.venv\\Scripts\\python",
+    "attack": "Sample Poisoning",
+    "targeted": false,
+    "target_label": 3,
+    "target_changed_label": 7,
+    "noise_type": "salt",
+    "poisoned_node_percent": 30,
+    "poisoned_sample_percent": 10,
+    "poisoned_ratio": 20,
+    "sentinel_distance_threshold": 0.1,
+    "rounds": 5,
+    "epochs": 3,
+    "dataset": "MNIST",
+    "model": "MLP",
+    "accelerator": "gpu",
+    "aggregation": "Krum",
+    "network_subnet": "192.168.50.1/24",
     "network_gateway": "192.168.50.1",
-    "attack_matrix": [[0, "No Attack", 0, 0], [1, "Label Flipping", 0.2, 0.2], [2, "No Attack", 0, 0], [3, "No Attack", 0, 0], [4, "No Attack", 0, 0]]}
+    "webport": "5000",
+    "statsport": "5100",
+    "docker": true,
+    "attack_matrix": [
+        [
+            0,
+            "Label Flipping",
+            1.0,
+            0.8
+        ],
+        [
+            1,
+            "No Attack",
+            0,
+            0
+        ],
+        [
+            2,
+            "No Attack",
+            0,
+            0
+        ],
+        [
+            3,
+            "Label Flipping",
+            1.0,
+            0.8
+        ],
+        [
+            4,
+            "No Attack",
+            0,
+            0
+        ],
+        [
+            5,
+            "No Attack",
+            0,
+            0
+        ],
+        [
+            6,
+            "Label Flipping",
+            1.0,
+            0.8
+        ],
+        [
+            7,
+            "Label Flipping",
+            1.0,
+            0.8
+        ],
+        [
+            8,
+            "Label Flipping",
+            1.0,
+            0.8
+        ],
+        [
+            9,
+            "Label Flipping",
+            1.0,
+            0.8
+        ]
+    ],
+    "sentinelglobal_active_round": 3
+}

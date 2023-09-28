@@ -11,7 +11,9 @@ class TrimmedMean(Aggregator):
     Paper: https://arxiv.org/pdf/1803.01498.pdf
     """
 
-    def __init__(self, node_name="unknown", config=None, beta=0):
+    def __init__(self, node_name="unknown", config=None, logger=None, learner=None, agg_round=0, beta=0):
+        super().__init__(node_name, config, logger, learner, agg_round)
+
         super().__init__(node_name, config)
         self.beta = beta
         self.config = config
@@ -52,7 +54,7 @@ class TrimmedMean(Aggregator):
             atmp = np.partition(arr_weights, (start, end - 1), 0)
             sl = [slice(None)] * atmp.ndim
             sl[0] = slice(start, end)
-            print(atmp[tuple(sl)])
+            # print(atmp[tuple(sl)])
             arr_median = np.mean(atmp[tuple(sl)], axis=0)
             res = torch.tensor(arr_median)
 
@@ -82,7 +84,6 @@ class TrimmedMean(Aggregator):
         models_params = [m for m, _ in models]
 
         # Total Samples
-        total_samples = sum([y for _, y in models])
         total_models = len(models)
 
         # Create a Zero Model

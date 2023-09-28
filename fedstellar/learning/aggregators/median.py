@@ -11,8 +11,9 @@ class Median(Aggregator):
     Paper: https://arxiv.org/pdf/1803.01498.pdf
     """
 
-    def __init__(self, node_name="unknown", config=None):
-        super().__init__(node_name, config)
+    def __init__(self, node_name="unknown", config=None, logger=None, learner=None, agg_round=0):
+        super().__init__(node_name, config, logger, learner, agg_round)
+
         self.config = config
         self.role = self.config.participant["device_args"]["role"]
         logging.info("[Median] My config is {}".format(self.config))
@@ -75,7 +76,6 @@ class Median(Aggregator):
         models_params = [m for m, _ in models]
 
         # Total Samples
-        total_samples = sum([y for _, y in models])
         total_models = len(models)
 
         # Create a Zero Model

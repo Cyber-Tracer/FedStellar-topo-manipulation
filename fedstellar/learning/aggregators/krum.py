@@ -11,8 +11,9 @@ class Krum(Aggregator):
     Paper: https://papers.nips.cc/paper/2017/hash/f4b9ec30ad9f68f89b29639786cb62ef-Abstract.html
     """
 
-    def __init__(self, node_name="unknown", config=None):
-        super().__init__(node_name, config)
+    def __init__(self, node_name="unknown", config=None, logger=None, learner=None, agg_round=0):
+        super().__init__(node_name, config, logger, learner, agg_round)
+
         self.config = config
         self.role = self.config.participant["device_args"]["role"]
         logging.info("[Krum] My config is {}".format(self.config))
@@ -25,6 +26,9 @@ class Krum(Aggregator):
         Args:
             models: Dictionary with the models (node: model,num_samples).
         """
+
+        node_keys = list(models.keys())
+
         # Check if there are models to aggregate
         if len(models) == 0:
             logging.error(
@@ -33,9 +37,6 @@ class Krum(Aggregator):
             return None
 
         models = list(models.values())
-
-        # Total Samples
-        total_samples = sum([y for _, y in models])
 
         # Create a Zero Model
         accum = (models[-1][0]).copy()
@@ -73,10 +74,15 @@ class Krum(Aggregator):
             if min_distance_sum > distance_list[i]:
                 min_distance_sum = distance_list[i]
                 min_index = i
+        
+        logging.info("[Krum.aggregate] Distances: distance_list={}".format(distance_list))
 
         # Assign the model with min distance with others as the aggregated model
         m, _ = models[min_index]
         for layer in m:
             accum[layer] = accum[layer] + m[layer]
+
+        # logging.info("[Krum.aggregate] Aggregated model: accum={}".format(accum))
+        logging.info("[Krum.aggregate] Selected model: {}, distance: {}".format(node_keys[min_index], distance_list[min_index]))
 
         return accum
