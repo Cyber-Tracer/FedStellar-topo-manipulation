@@ -76,9 +76,9 @@
     "config_dir": "/Users/enrique/Documents/PhD/fedstellar/app/config",
     "model_dir": "/Users/enrique/Documents/PhD/fedstellar/app/model",
     "wandb_key": [
-      "6503e4056b60070066f6d321c9296ff2e86b69cf"
+      "your own key"
     ],
-    "wandb_entity": "jifegi",
+    "wandb_entity": "your own entity",
     "wandb_project": "fedstellar"
   },
   "mender_args": {
