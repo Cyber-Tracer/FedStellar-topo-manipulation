@@ -57,3 +57,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Author
 
 * **Enrique Tomás Martínez Beltrán** - [Website](https://enriquetomasmb.com) - [Email](mailto:enriquetomas@um.es)
+* **Michael Voung** - [Email](michael.vuong@bluewin.ch)
