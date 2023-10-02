@@ -128,7 +128,7 @@ dmypy.json
 .pyre/
 
 # Own
-*.txt
+# *.txt
 _build/
 *.DS_Store
 app/
