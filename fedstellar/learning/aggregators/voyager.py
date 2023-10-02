@@ -36,7 +36,6 @@ class Voyager():
         self.with_reqution = with_reqution
         matrix = config['matrix']
         malicious = self.get_malicious(config['attack_matrix'])
-        print(malicious)
         converted_matrix = self.incidence_matrix_to_dictionary(matrix)
         adjusted_dictionary = self.number_efficient(converted_matrix, self.node_threshold, self.distance_threshold, malicious , self.with_reqution)
         self.reconverted_matrix = self.convert_dictionary_to_incidence_matrix(adjusted_dictionary)
@@ -135,7 +134,7 @@ class Voyager():
             # if there is still not enough node after adding then add random. this can be changed to anything if desired
             
             not_in_list = [i for i in graph.keys() if i not in graph[node]]
-            print(node, not_in_list, graph[node])
+            # print(node, not_in_list, graph[node])
             while len(graph[node]) + len(considered) < threshold and len(not_in_list) > 0:
                 to_be_added = random.choice(not_in_list)
                 
@@ -143,9 +142,9 @@ class Voyager():
                     if to_be_added not in graph[node] and to_be_added != node and to_be_added not in malicious_list:
                         graph[node].append(to_be_added)
                         connections += 1
-                        print(f"to be added: {node} -> {to_be_added}")
-                        print(type(to_be_added))
-                        print(type(node))
+                        # print(f"to be added: {node} -> {to_be_added}")
+                        # print(type(to_be_added))
+                        # print(type(node))
                 else:
                     if to_be_added not in graph[node] and to_be_added != node:
                         graph[node].append(to_be_added)

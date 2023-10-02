@@ -37,8 +37,14 @@ def generate_controller_configs(basic_config_path=basic_config_path):
     attack_matrix = create_attack_matrix(basic_config)
     basic_config['attack_matrix'] = attack_matrix
 
-    if basic_config['aggregation'] == 'Voyager':
-        voyager = Voyager(basic_config, 0.73, 3, True)
+    if basic_config['aggregation'] == 'Voyager-T':
+        voyager = Voyager(basic_config, 0.75, 3, True)
+        matrix = voyager.reconverted_matrix
+        basic_config['aggregation'] = 'FedAvg'
+        basic_config['matrix'] = matrix
+    
+    if basic_config['aggregation'] == 'Voyager-F':
+        voyager = Voyager(basic_config, 0.75, 3, False)
         matrix = voyager.reconverted_matrix
         basic_config['aggregation'] = 'FedAvg'
         basic_config['matrix'] = matrix
@@ -89,7 +95,7 @@ def create_topo_matrix(basic_config):
     elif basic_config["topology"] == "random":
         random_seed = random.randint(0, 100)
         matrix = []
-        graph = networkx.erdos_renyi_graph(num_nodes, 0.6, seed=random_seed)
+        graph = networkx.erdos_renyi_graph(num_nodes, 0.4, seed=random_seed)
         adj_matrix = networkx.adjacency_matrix(graph)
         matrix = adj_matrix.todense().tolist()
     elif basic_config["topology"] == "star":
@@ -267,6 +273,6 @@ def create_particiants_configs(basic_config, example_node_config_path=example_no
 if __name__ == "__main__":
     # Parse args from command line
     basic_config = generate_controller_configs()
-    # create_particiants_configs(basic_config, start_port=45000)
-    print(basic_config['matrix'])
-    print(basic_config['attack_matrix'])
+    create_particiants_configs(basic_config, start_port=45000)
+    # print(basic_config['matrix'])
+    # print(basic_config['attack_matrix'])

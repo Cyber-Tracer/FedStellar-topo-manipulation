@@ -24,6 +24,7 @@ def labelFlipping(dataset, indices, poisoned_percent=0, targeted=False, target_l
     if targeted == False:
         print("[labelFlipping]: Untargeted label-flipping!")
         num_flipped = int(poisoned_percent * num_indices)
+        print(f"[labelFlipping]: {num_flipped} number of labels will be flipped!")
         if num_indices == 0:
             return new_dataset
         if num_flipped > num_indices:

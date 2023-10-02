@@ -1,5 +1,5 @@
 # 
-# This file is part of the fedstellar framework (see https://github.com/enriquetomasmb/fedstellar).
+# This file is part of the Fedstellar platform (see https://github.com/enriquetomasmb/fedstellar).
 # Copyright (c) 2023 Enrique Tomás Martínez Beltrán.
 #
 import json
@@ -70,8 +70,7 @@ class BaseNode(threading.Thread, Observer):
         if not self.simulation and config.participant["network_args"]:
             print("[BASENODE] Network parameters\n{}".format(config.participant["network_args"]))
             print("[BASENODE] Running tcconfig to set network parameters")
-            os.system(
-                f"tcset --device {config.participant['network_args']['interface']} --rate {config.participant['network_args']['rate']} --delay {config.participant['network_args']['delay']} --delay-distro {config.participant['network_args']['delay-distro']} --loss {config.participant['network_args']['loss']}")
+            os.system(f"tcset --device {config.participant['network_args']['interface']} --rate {config.participant['network_args']['rate']} --delay {config.participant['network_args']['delay']} --delay-distro {config.participant['network_args']['delay-distro']} --loss {config.participant['network_args']['loss']}")
 
         # Neighbors
         self.__neighbors = []  # private to avoid concurrency issues
@@ -83,10 +82,9 @@ class BaseNode(threading.Thread, Observer):
             os.makedirs(self.log_dir)
         self.log_filename = f"{self.log_dir}/participant_{config.participant['device_args']['idx']}" if self.hostdemo else f"{self.log_dir}/participant_{config.participant['device_args']['idx']}"
         os.makedirs(os.path.dirname(self.log_filename), exist_ok=True)
-        console_handler, file_handler, file_handler_only_debug, exp_errors_file_handler = self.setup_logging(
-            self.log_filename)
+        console_handler, file_handler, file_handler_only_debug, exp_errors_file_handler = self.setup_logging(self.log_filename)
 
-        level = logging.DEBUG if config.participant["scenario_args"]["debug"] else logging.CRITICAL
+        level = logging.DEBUG if config.participant["device_args"]["logging"] else logging.CRITICAL
         logging.basicConfig(level=level,
                             handlers=[
                                 console_handler,
@@ -132,17 +130,17 @@ class BaseNode(threading.Thread, Observer):
         console_handler.setFormatter(Formatter(log_console_format))
 
         file_handler = FileHandler('{}.log'.format(log_dir), mode='w')
-        console_handler.setLevel(logging.INFO if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
+        file_handler.setLevel(logging.INFO if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
         file_handler.setFormatter(Formatter(info_file_format))
 
         file_handler_only_debug = FileHandler('{}_debug.log'.format(log_dir), mode='w')
-        console_handler.setLevel(logging.INFO if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
+        file_handler_only_debug.setLevel(logging.DEBUG if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
         # Add filter to file_handler_only_debug for only add debug messages
         file_handler_only_debug.addFilter(lambda record: record.levelno == logging.DEBUG)
         file_handler_only_debug.setFormatter(Formatter(debug_file_format))
 
         exp_errors_file_handler = FileHandler('{}_error.log'.format(log_dir), mode='w')
-        console_handler.setLevel(logging.INFO if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
+        exp_errors_file_handler.setLevel(logging.WARNING if self.config.participant["device_args"]["logging"] else logging.CRITICAL)
         exp_errors_file_handler.setFormatter(Formatter(debug_file_format))
 
         return console_handler, file_handler, file_handler_only_debug, exp_errors_file_handler
@@ -178,7 +176,6 @@ class BaseNode(threading.Thread, Observer):
             # Send a self message to the loop to avoid the wait of the next recv
             self.__send(self.host, self.port, b"")
         except Exception as e:
-            logging.error("{}".format(e), stack_info=True)
             pass
 
     ########################
@@ -213,7 +210,7 @@ class BaseNode(threading.Thread, Observer):
 
         # Stop Node
         logging.info(
-            "[BASENODE] Stopping node. Disconnecting from {} nodes".format(
+            "[BASENODE] Stopping node. Disconnecting from {} nodos".format(
                 len(self.__neighbors)
             )
         )
@@ -440,7 +437,6 @@ class BaseNode(threading.Thread, Observer):
             self.__neighbors.remove(n)
             n.stop()
         except Exception as e:
-            logging.error("{}".format(e), stack_info=True)
             pass
         self.__nei_lock.release()
 
@@ -490,25 +486,21 @@ class BaseNode(threading.Thread, Observer):
             obj: Information about the change or event.
         """
         if len(str(obj)) > 300:
-            logging.debug(
-                "[BASENODE.update (observer)] Event that has occurred: {} | Obj information: Too long [...]".format(
-                    event))
+            logging.debug("[BASENODE.update (observer)] Event that has occurred: {} | Obj information: Too long [...]".format(event))
         else:
-            logging.debug(
-                "[BASENODE.update (observer)] Event that has occurred: {} | Obj information: {}".format(event, obj))
+            logging.debug("[BASENODE.update (observer)] Event that has occurred: {} | Obj information: {}".format(event, obj))
 
         if event == Events.END_CONNECTION_EVENT:
             self.rm_neighbor(obj)
 
         elif event == Events.NODE_CONNECTED_EVENT:
-            # Este evento lo notifica NodeConnection. Previamente se ha tenido que conectar con el nodo.
+            # This event is reported by NodeConnection. Previously it has had to connect to the node.
             logging.debug("[BASENODE.update (observer) | Events.NODE_CONNECTED_EVENT] Connecting to: {}".format(obj[0]))
             n, _ = obj
             n.send(CommunicationProtocol.build_beat_msg(self.get_name()))
 
         elif event == Events.CONN_TO_EVENT:
-            logging.debug(
-                "[BASENODE.update (observer) | Events.CONN_TO_EVENT] Connecting to: {} {}".format(obj[0], obj[1]))
+            logging.debug("[BASENODE.update (observer) | Events.CONN_TO_EVENT] Connecting to: {} {}".format(obj[0], obj[1]))
             self.connect_to(obj[0], obj[1], full=False)
 
         elif event == Events.SEND_BEAT_EVENT:
@@ -525,13 +517,9 @@ class BaseNode(threading.Thread, Observer):
                     nc.add_processed_messages(list(msgs.keys()))
             # Gossip the new messages
             if len(str(obj)) > 300:
-                logging.debug(
-                    "[BASENODE.update (observer) | Events.PROCESSED_MESSAGES_EVENT] Add messages to gossiper: Too long [...] | Node: {}".format(
-                        node))
+                logging.debug("[BASENODE.update (observer) | Events.PROCESSED_MESSAGES_EVENT] Add messages to gossiper: Too long [...] | Node: {}".format(node))
             else:
-                logging.debug(
-                    "[BASENODE.update (observer) | Events.PROCESSED_MESSAGES_EVENT] Add messages to gossiper: {} | Node: {}".format(
-                        list(msgs.values()), node))
+                logging.debug("[BASENODE.update (observer) | Events.PROCESSED_MESSAGES_EVENT] Add messages to gossiper: {} | Node: {}".format(list(msgs.values()), node))
             self.gossiper.add_messages(list(msgs.values()), node)
 
         elif event == Events.BEAT_RECEIVED_EVENT:

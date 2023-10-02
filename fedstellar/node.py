@@ -135,6 +135,7 @@ class Node(BaseNode):
         self.model_poisoning = model_poisoning
         self.poisoned_ratio = poisoned_ratio
         self.noise_type = noise_type
+        self.start_time = time.time()
 
         # Learner and learner logger
         # log_model="all" to log model
@@ -309,6 +310,7 @@ class Node(BaseNode):
             rounds: Number of rounds of the learning process.
             epochs: Number of epochs of the learning process.
         """
+        logging.info(f"[NODE.set_start_learning] go to set_start_learning:self.round is {self.round}")
         if self._terminate_flag.is_set():
             logging.info(
                 "[NODE] Node must be running to start learning"
@@ -348,6 +350,7 @@ class Node(BaseNode):
     ##################################
 
     def __start_learning_thread(self, rounds, epochs):
+        logging.info(f"[NODE.__start_learning_thread] go to __start_learning_thread:self.round is {self.round}")
         learning_thread = threading.Thread(
             target=self.__start_learning, args=(rounds, epochs)
         )
@@ -365,6 +368,9 @@ class Node(BaseNode):
         """
         self.__start_thread_lock.acquire()  # Used to avoid create duplicated training threads
         if self.round is None:
+            self.broadcast(
+                CommunicationProtocol.build_start_learning_msg(rounds, epochs)
+            )
             self.round = 0
             self.totalrounds = rounds
             self.learner.init()
@@ -651,6 +657,10 @@ class Node(BaseNode):
         # Finish round
         if self.round is not None:
             self.__on_round_finished()
+        current_time = time.time()
+        if current_time - self.start_time > 3000:
+            logging.warning("[NODE.__train_step] training time out, exit!")
+            self.stop()
 
     def __validate_train_set(self):
         # Verify if node set is valid (can happend that a node was down when the votes were being processed)
@@ -788,14 +798,27 @@ class Node(BaseNode):
                 proceed_round = True
             else:
                 count = count + 1
+
+                current_time = time.time()
+                if current_time - self.start_time > 3000:
+                    logging.warning("[NODE.__train_step] training time out, exit!")
+                    self.stop()
+                    return
                 # retry
                 # self.broadcast(CommunicationProtocol.build_models_ready_msg(self.round))
                 if count > self.config.participant["ROUND_PROCEED_TIMEOUT"]:
                     # with increasing node number, e.g. 10, the sync requires quite some time
-                    logging.info("[NODE] ROUND_PROCEED_TIMEOUT reached. Nodes possibly out of sync. Stopping node!")
-                    self.stop()
-                    return
-                time.sleep(5)
+                    # logging.info("[NODE] ROUND_PROCEED_TIMEOUT reached. Nodes possibly out of sync. Stopping node!")
+                    # self.stop()
+                    # return
+
+                    logging.info("[NODE] ROUND_PROCEED_TIMEOUT reached. Nodes possibly out of sync. Moving to next round: {}!".format(self.round + 1))
+                    # self.stop()
+                    proceed_round = True
+                    # return
+
+
+                time.sleep(3)
             """
             else:
                 count = count + 1

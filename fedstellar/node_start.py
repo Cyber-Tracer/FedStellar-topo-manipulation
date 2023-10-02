@@ -47,8 +47,7 @@ def main():
     epochs = config.participant["training_args"]["epochs"]
 
     aggregation_algorithm = config.participant["aggregator_args"]["algorithm"]
-    # is_iid = config.participant["data_args"]["is_iid"]
-    is_iid = True
+    is_iid = config.participant["data_args"]["is_iid"]
 
     # Config of attacks
     attacks = config.participant["adversarial_args"]["attacks"]
@@ -164,9 +163,11 @@ def main():
     is_fully_connected = False
     while not is_fully_connected:
         for i in neighbors:
-            print(f"Connecting to {i}")
-            node.connect_to(i.split(':')[0], int(i.split(':')[1]), full=False)
-            time.sleep(5)
+            connected_neis = [j.get_name() for j in node.get_neighbors()]
+            if i not in connected_neis:
+                print(f"Connecting to {i}")
+                node.connect_to(i.split(':')[0], int(i.split(':')[1]), full=False)
+                time.sleep(5)
         if len(neighbors) == len(node.get_neighbors()):
             is_fully_connected = True
             print("Successfully connected to all nodes")

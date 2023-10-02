@@ -22,6 +22,6 @@ WORKDIR /fedstellar
 COPY requirements.txt .
 # Install the required packages
 RUN python3.8 -m pip install -r requirements.txt
-RUN python3.8 -m pip install scikit-learn
-RUN python3.8 -m pip install scikit-image
-RUN python3.8 -m pip install seaborn
+
+# Login wandb
+RUN wandb login 6503e4056b60070066f6d321c9296ff2e86b69cf
