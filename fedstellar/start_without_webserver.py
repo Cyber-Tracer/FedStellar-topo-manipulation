@@ -3,7 +3,7 @@ import os, sys
 from datetime import datetime
 import networkx
 import random
-
+# import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))  # Parent directory where is the fedstellar module
 import fedstellar
 from fedstellar.controller import Controller
@@ -18,6 +18,17 @@ basic_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ba
 example_node_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/participant.json.example')
 os.environ["FEDSTELLAR_ROOT"] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+def get_voyager_threshold(matrix, basic_config):
+    n = len(matrix)
+    e = int(np.sum(matrix)/n)
+    pnr = int(basic_config["poisoned_node_percent"])
+    
+    threshold = math.ceil((2 * e * n * pnr)/((n-1)*100)) + 2
+    print(n, e, pnr, threshold)
+    if threshold >= n -1:
+        threshold = n -2
+    
+    return threshold
 
 def generate_controller_configs(basic_config_path=basic_config_path):
     basic_config = ''
@@ -32,16 +43,27 @@ def generate_controller_configs(basic_config_path=basic_config_path):
     basic_config["topology"] = basic_config["topology"].lower()
 
     matrix = create_topo_matrix(basic_config)
-    basic_config['matrix'] = matrix
+    
 
     attack_matrix = create_attack_matrix(basic_config)
     basic_config['attack_matrix'] = attack_matrix
 
+    print(matrix)
+    print(basic_config['aggregation'])
+    # if there is an isolated node, the connect it with node 0
+    for v in range(len(matrix)):
+        if np.sum(matrix[v])==0:
+            matrix[v][0] = 1
+            matrix[0][v] = 1
+    basic_config['matrix'] = matrix
+
     if basic_config['aggregation'] == 'Voyager-T':
-        voyager = Voyager(basic_config, 0.75, 3, True)
-        matrix = voyager.reconverted_matrix
-        basic_config['aggregation'] = 'FedAvg'
-        basic_config['matrix'] = matrix
+        basic_config['aggregation'] = 'Krum'
+        if basic_config["attack"] != "No Attack":
+            threshold = get_voyager_threshold(matrix, basic_config)
+            voyager = Voyager(basic_config, threshold, 3, True)
+            matrix = voyager.reconverted_matrix        
+            basic_config['matrix'] = matrix
     
     if basic_config['aggregation'] == 'Voyager-F':
         voyager = Voyager(basic_config, 0.75, 3, False)
@@ -273,6 +295,7 @@ def create_particiants_configs(basic_config, example_node_config_path=example_no
 if __name__ == "__main__":
     # Parse args from command line
     basic_config = generate_controller_configs()
-    create_particiants_configs(basic_config, start_port=45000)
-    # print(basic_config['matrix'])
+    # create_particiants_configs(basic_config, start_port=45000)
+    # print(get_voyager_threshold(basic_config['matrix'], basic_config))
+    print(basic_config['matrix'])
     # print(basic_config['attack_matrix'])

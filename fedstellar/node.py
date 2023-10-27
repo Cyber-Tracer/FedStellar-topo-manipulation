@@ -135,7 +135,7 @@ class Node(BaseNode):
         self.model_poisoning = model_poisoning
         self.poisoned_ratio = poisoned_ratio
         self.noise_type = noise_type
-        self.start_time = time.time()
+        # self.start_time = time.time()
 
         # Learner and learner logger
         # log_model="all" to log model
@@ -658,7 +658,7 @@ class Node(BaseNode):
         if self.round is not None:
             self.__on_round_finished()
         current_time = time.time()
-        if current_time - self.start_time > 3000:
+        if current_time - self._start_time > 3000:
             logging.warning("[NODE.__train_step] training time out, exit!")
             self.stop()
 
@@ -800,7 +800,7 @@ class Node(BaseNode):
                 count = count + 1
 
                 current_time = time.time()
-                if current_time - self.start_time > 3000:
+                if current_time - self._start_time > 3000:
                     logging.warning("[NODE.__train_step] training time out, exit!")
                     self.stop()
                     return
@@ -876,8 +876,8 @@ class Node(BaseNode):
 
             # Finish
             # save the final model to file system
-            # with open(self.model_name, 'wb') as f:
-            #    pickle.dump(self.learner.model, f)
+            with open(self.model_name, 'wb') as f:
+               pickle.dump(self.learner.model, f)
             logging.info(
                 "[NODE] FL experiment finished | Round: {} | Total rounds: {} | [!] Both to None".format(
                     self.round, self.totalrounds

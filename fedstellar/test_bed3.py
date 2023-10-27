@@ -11,7 +11,7 @@ import shutil
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))  # Parent directory where is the fedstellar module
 
 from fedstellar.start_without_webserver import generate_controller_configs, create_particiants_configs
-# time.sleep(3600*6)
+time.sleep(3600*10)
 
 docker_client = docker.from_env()
 
@@ -110,7 +110,7 @@ basic_config["models"] = models_path
 
 basic_config["remote_tracking"] = True
 basic_config["logging"] = True
-basic_config["wandb_project"] = "fedstellar-topoinference"
+basic_config["wandb_project"] = "fedstellar"
 
 # basic_config["federation"] = "CFL"
 # basic_config["topology"] = "fully"
@@ -133,7 +133,10 @@ basic_config["epochs"] = 3
 
 basic_config["noise_type"] = "salt"
 # attack_list = ["No Attack", "Label Flipping", "Sample Poisoning", "Model Poisoning"]
-attack_list = ["No Attack"]
+# attack_list = [ "No Attack", "Label Flipping", "Model Poisoning"]
+attack_list = [ "Label Flipping", "Model Poisoning"]
+# attack = attack_list[0]
+# attack_list = ["No Attack"]
 
 # poisoned_node_percent_list = [90, 70, 50, 30, 10]
 poisoned_node_percent_list = [60, 30, 10]
@@ -143,8 +146,8 @@ poisoned_sample_percent_list = [100]
 poisoned_ratio_list = [80]
 
 # aggregation_list = ["FedAvg", "Krum", "TrimmedMean", "FlTrust", "Sentinel", "SentinelGlobal"]
-# aggregation_list = ["FedAvg", "Krum", "TrimmedMean", "FlTrust"]
-aggregation_list = [ "FedAvg"]
+aggregation_list = ["FedAvg", "Krum", "TrimmedMean", "FlTrust"]
+# aggregation_list = [ "FedAvg"]
 # aggregation_list = ["Voyager-T"]
 
 basic_config["sentinel_distance_threshold"] = 0.1
@@ -152,7 +155,7 @@ basic_config["sentinelglobal_active_round"] = 3
 # federation_list = ["CFL", "DFL"]
 federation_list = ["DFL"]
 # topolgy_list = ["fully", "star", "ring", "random"]
-topolgy_list = ["ring"]
+topolgy_list = [ "star","ring", "random"]
 N_EXPERIMENTS = 1
 if basic_config["accelerator"] == "gpu":
     EXPERIMENT_WAIT_SEC = 60 +  basic_config["rounds"]
@@ -160,18 +163,18 @@ else:
     EXPERIMENT_WAIT_SEC = 60 + 10 * basic_config["epochs"] * basic_config["rounds"]
 
 
-# basic_config["dataset"] = "CIFAR10"  # MNIST, FASHIONMNIST, CIFAR10
-# basic_config["model"] = "simplemobilenet"  # MLP, simplemobilenet
+basic_config["dataset"] = "CIFAR10"  # MNIST, FASHIONMNIST, CIFAR10
+basic_config["model"] = "simplemobilenet"  # MLP, simplemobilenet
 
 
-datasetlist = ['FASHIONMNIST' ]
+datasetlist = ['CIFAR10' ]
 for dataset in datasetlist:
     basic_config["dataset"] =  dataset
     if dataset == 'CIFAR10':
         basic_config["model"] = "simplemobilenet"
     else:
         basic_config["model"] = "MLP"
-    for n_nodes in [10]:   
+    for n_nodes in [8]:   
         basic_config["n_nodes"] =  n_nodes
         for fed in federation_list:
             basic_config["federation"] = fed

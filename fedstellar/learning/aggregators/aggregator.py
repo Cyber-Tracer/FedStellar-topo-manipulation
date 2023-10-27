@@ -138,7 +138,8 @@ class Aggregator(threading.Thread, Observable):
             self.notify(Events.AGGREGATION_FINISHED_EVENT, model)
         else:
             if nodes is not None:
-                self.__lock.acquire()
+                if not self.__lock.locked():
+                    self.__lock.acquire()
 
                 # Start aggregation timeout
                 if self.__train_set != [] and not self.__thread_executed:
@@ -182,16 +183,19 @@ class Aggregator(threading.Thread, Observable):
                         # Build response
                         response = models_added + nodes
                         # Unloock
-                        self.__lock.release()
+                        if self.__lock.locked():
+                            self.__lock.release()
 
                         return response
                     else:
-                        self.__lock.release()
+                        if self.__lock.locked():
+                            self.__lock.release()
                         logging.debug(
                             "[Aggregator] Can't add a model that has already been added {}".format(nodes)
                         )
                 else:
-                    self.__lock.release()
+                    if self.__lock.locked():
+                        self.__lock.release()
                     logging.debug("[Aggregator] Need not needed,  releasing lock")
             else:
                 logging.debug("[Aggregator] __waiting_aggregated_model = False,  model received by diffusion")

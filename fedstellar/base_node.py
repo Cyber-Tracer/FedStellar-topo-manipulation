@@ -10,7 +10,7 @@ import threading
 from datetime import datetime
 from logging import Formatter, FileHandler
 from logging.handlers import RotatingFileHandler
-
+import time
 from fedstellar.communication_protocol import CommunicationProtocol
 from fedstellar.encrypter import AESCipher, RSACipher
 from fedstellar.gossiper import Gossiper
@@ -49,6 +49,7 @@ class BaseNode(threading.Thread, Observer):
         self.encrypt = encrypt
         self.simulation = config.participant["scenario_args"]["simulation"]
         self.config = config
+        self._start_time = time.time()
 
         # Super init
         threading.Thread.__init__(self, name="node-" + self.get_name())
@@ -187,8 +188,13 @@ class BaseNode(threading.Thread, Observer):
         Main loop of the node, when a node is running, this method is being executed. It will listen for new connections and process them.
         """
         # Process new connections loop
-        logging.info("[BASENODE] Node started")
+        logging.info("[BASENODE.run] Node started")
         while not self._terminate_flag.is_set():
+            self._current_time = time.time()
+            if self._current_time - self._start_time > 2000:
+                print("timeout, stoped the node")
+                self.update(Events.STOP_LEARNING_EVENT, "stop")
+                self.stop()
             try:
                 (ns, _) = self.__node_socket.accept()
                 msg = ns.recv(self.config.participant["BLOCK_SIZE"])

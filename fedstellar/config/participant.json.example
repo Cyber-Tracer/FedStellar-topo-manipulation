@@ -19,7 +19,7 @@
     "role": "aggregator",
     "start": false,
     "accelerator": "cpu",
-    "devices": 1,
+    "devices": 2,
     "strategy": "ddp",
     "logging": false
   },
@@ -79,7 +79,7 @@
       "your own key"
     ],
     "wandb_entity": "your own entity",
-    "wandb_project": "fedstellar"
+    "wandb_project": "fedstellar-topoinference"
   },
   "mender_args": {
     "id": "",

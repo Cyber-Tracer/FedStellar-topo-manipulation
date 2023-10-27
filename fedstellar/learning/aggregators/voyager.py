@@ -26,7 +26,7 @@ class Voyager():
     """
     def __init__(self, 
                  config,
-                 node_threshold=0.75,
+                 node_threshold=3,
                  distance_threshold=3,                 
                  with_reqution=False
                  ):
@@ -109,11 +109,11 @@ class Voyager():
         #print(visited)
         return connections
 
-    def number_efficient(self, graph, percentage, distance, malicious_list, with_repution):
+    def number_efficient(self, graph, threshold, distance, malicious_list, with_repution):
         #print("original graph:")
         #print(graph)
         # set the threshold required for all nodes'
-        threshold = round(percentage * len(graph))
+        # threshold = round(percentage * len(graph))
         # threshold = 3
 
         distance = distance
